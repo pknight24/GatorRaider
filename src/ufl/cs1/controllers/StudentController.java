@@ -61,7 +61,8 @@ public final class StudentController implements DefenderController
 		}
 		else if (ghost.isVulnerable())
 		{
-			return whenVulnerable(game, ghost, 1);
+			//return whenVulnerable(game, ghost, 1);
+			return goToQuad(game, ghost, 1);
 		}
 		else
 		{
@@ -82,22 +83,22 @@ public final class StudentController implements DefenderController
 		else if (ghost.isVulnerable())
 		{
 			return whenVulnerable(game, ghost, 2);
+			//return goToQuad(game, ghost, 2);
 		}
 		else
 		{
-			int xdiff = aLoc.getX() - ghost.getLocation().getX();
-			int ydiff = aLoc.getY() - ghost.getLocation().getY();
-
-			return ghost.getNextDir(aLoc, true);
-
-
-
+			if (ghost.getLocation().getPathDistance(aLoc) <= 20)
+				return ghost.getNextDir(aLoc, true);
+			else
+				return goToQuad(game, ghost, getQuadrant(aLoc));
 		}
 	}
 	//By: Leo
 	public int ghostThree(Game game, Defender ghost)
 	{
+
 		return goToQuad(game, ghost, 3);
+		//return ghost.getNextDir(game.getCurMaze().getInitialDefendersPosition(), false);
 	}
 
 	//By: Maddy
