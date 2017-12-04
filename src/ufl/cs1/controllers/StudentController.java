@@ -4,6 +4,7 @@ import game.controllers.DefenderController;
 import game.models.Defender;
 import game.models.Game;
 import game.models.Node;
+import game.models.Maze;
 
 import java.util.List;
 
@@ -45,33 +46,69 @@ public final class StudentController implements DefenderController
 			}
 		}
 
-		//prints quadrant of pac man
-		System.out.println("Pac man Quadrant: " + getQuadrant(game.getAttacker().getLocation()));
+
 
 		return actions;
 	}
 
+	//By: Parker
+	//this ghost simply chases the attacker
 	public int ghostOne(Game game, Defender ghost)
 	{
-		return 0;
+		if (closeToPill(game.getAttacker().getLocation(), game))
+		{
+			return goToQuad(game, ghost, 1);
+		}
+		else if (ghost.isVulnerable())
+		{
+			return whenVulnerable(game, ghost, 1);
+		}
+		else
+		{
+			return ghost.getNextDir(game.getAttacker().getLocation(),true);
+
+		}
 	}
 
+	//By: Parker
 	public int ghostTwo(Game game, Defender ghost)
 	{
-		return 1;
-	}
+		Node aLoc = game.getAttacker().getLocation();
 
+		if (closeToPill(aLoc, game))
+		{
+			return goToQuad(game, ghost, 2);
+		}
+		else if (ghost.isVulnerable())
+		{
+			return whenVulnerable(game, ghost, 2);
+		}
+		else
+		{
+			int xdiff = aLoc.getX() - ghost.getLocation().getX();
+			int ydiff = aLoc.getY() - ghost.getLocation().getY();
+
+			return ghost.getNextDir(aLoc, true);
+
+
+
+		}
+	}
+	//By: Leo
 	public int ghostThree(Game game, Defender ghost)
 	{
-		return 2;
+		return goToQuad(game, ghost, 3);
 	}
 
+	//By: Maddy
 	public int ghostFour(Game game, Defender ghost)
 	{
-		return 3;
+		return goToQuad(game, ghost, 4);
 	}
 
 
+	//gets the quadrant that a certain node is in
+	//used to find the general location of the attacker
 	public int getQuadrant(Node node)
 	{
 		int x = node.getX();
@@ -111,17 +148,74 @@ public final class StudentController implements DefenderController
 		return -1;
 	}
 
+
+
+
 	//sends a ghost to a specific quadrant
 	//will be used when a ghost is vulnerable to effectively scatter them
-	//specifically, it will send a ghost to the power pill in its respective quadrant
-	public int goToQuad(Defender ghost, Game game, int quadrant)
+	//first looks for power pills in a specific quadrant so that the if pac man is stuck on a power pill, it will be triggered
+	//this also tucks the ghosts tighter into the corners
+	public int goToQuad(Game game, Defender ghost, int quadrant)
 	{
-		switch (quadrant)
+		List<Node> pills = game.getPillList();
+		List<Node> powerPills = game.getPowerPillList();
+
+		//checks the list of power pills
+		for (int j = 0;j < powerPills.size(); j++ )
 		{
-			
+			if (getQuadrant(powerPills.get(j)) == quadrant)
+				return ghost.getNextDir(powerPills.get(j), true);
+		}
+
+		//if a ghosts respective power pill has already been used, it will cycle in the general area
+		for (int i = 0; i < pills.size(); i++)
+		{
+			//this makes sure that the pill is in the desired quadrant and that it is a good distance away from the ghost
+			if (getQuadrant(pills.get(i)) == quadrant && ghost.getLocation().getPathDistance(pills.get(i)) >= 45)
+				return ghost.getNextDir(pills.get(i),true);
 		}
 
 		return -1;
 	}
 
+	//checks if a node is close to a power pill
+	public boolean closeToPill(Node node, Game game)
+	{
+
+		List<Node> powerPills = game.getPowerPillList();
+
+		for (int i = 0; i < powerPills.size(); i++)
+		{
+			if (node.getPathDistance(powerPills.get(i)) <= 45)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int whenVulnerable(Game game, Defender ghost, int quadrant)
+	{
+		Node aLoc = game.getAttacker().getLocation();
+		List<Node> powerPills = game.getPowerPillList();
+
+		Maze maze = game.getCurMaze();
+
+		boolean powerPillPresent = false;
+
+		for (int i = 0;i < powerPills.size();i++)
+		{
+			if (getQuadrant(powerPills.get(i)) == quadrant)
+				powerPillPresent = true;
+		}
+
+		if (powerPillPresent)
+		{
+			return ghost.getNextDir(maze.getInitialDefendersPosition(), true);
+		}
+		else
+		{
+			return goToQuad(game, ghost, quadrant);
+		}
+	}
 }
