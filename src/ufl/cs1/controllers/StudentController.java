@@ -102,10 +102,30 @@ public final class StudentController implements DefenderController
 	}
 
 	//By: Maddy
-	public int ghostFour(Game game, Defender ghost)
-	{
-		return goToQuad(game, ghost, 4);
+	public int ghostFour(Game game, Defender ghost){
+	
+	Node aLoc = game.getAttacker().getLocation();
+
+		if (ghost.isVulnerable()) {
+			return goToQuad(game, ghost, 4);
+		}
+
+		else if (closeToPill(game.getAttacker().getLocation(), game))
+		{
+			return goToQuad(game, ghost, 4);
+		}
+		else  {
+			if (ghost.getLocation().getPathDistance(aLoc) <= 10) {
+				return goToQuad(game, ghost, 4);
+			}
+			else {
+				return ghost.getNextDir(game.getAttacker().getLocation(), true);
+
+			}
+		}
 	}
+
+
 
 
 	//gets the quadrant that a certain node is in
