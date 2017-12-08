@@ -30,9 +30,9 @@ public class Exec
 		if (args.length > 0)
 		{
 			if (args[0].toLowerCase().equals("-testexample"))
-				exec.runExperiment(attacker, exampleDefender, 20);
+				exec.runExperiment(attacker, exampleDefender, 100);
 			else if (args[0].toLowerCase().equals("-teststudent"))
-				exec.runExperiment(attacker, studentDefender, 20);
+				exec.runExperiment(attacker, studentDefender, 100);
 			else if (args[0].toLowerCase().equals("-visualexample"))
 				exec.runGame(attacker, exampleDefender, true, _Game.DELAY);
 			else

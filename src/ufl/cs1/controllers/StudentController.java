@@ -94,12 +94,41 @@ public final class StudentController implements DefenderController
 		}
 	}
 	//By: Leo
-	public int ghostThree(Game game, Defender ghost)
-	{
+	public int ghostThree(Game game, Defender ghost) {
 
-		return goToQuad(game, ghost, 3);
-		//return ghost.getNextDir(game.getCurMaze().getInitialDefendersPosition(), false);
+		Maze maze = game.getCurMaze();
+		List<Node> patrolpoints = maze.getPowerPillNodes();
+
+		if (ghost.isVulnerable()) {
+			return whenVulnerable(game, ghost, 3);
+			//return goToQuad(game, ghost, 3);
+		} else if ((closeToPill(game.getAttacker().getLocation(), game)) && getQuadrant(game.getAttacker().getLocation()) == 3){
+			return goToQuad(game, ghost, 3);
+		}else {
+			if (getDistanceDtoA(game,ghost) <= 20) //checks distance
+				return ghost.getNextDir(game.getAttacker().getLocation(),true); //if close enough tries to chase attacker
+			else{
+				if(patrolpoints.contains(ghost.getLocation())){ //if at a power pill node it will start chasing another defender for a that loop
+					Defender ref = game.getDefender(2);
+					return ghost.getNextDir(ref.getLocation(),true);
+				}else{
+					List<Node> patrol = ghost.getPathTo(ghost.getTargetNode(patrolpoints, true)); //tries to find nearest powerpill
+					return ghost.getNextDir(ghost.getTargetNode(patrol, true), true);
+				}
+
+			}
+		}
 	}
+
+	//gets distance between a defender and the attacker
+	public double getDistanceDtoA(Game game, Defender ghost) {
+		double xghost = ghost.getLocation().getX();
+		double xattacker = game.getAttacker().getLocation().getX();
+		double yghost = ghost.getLocation().getY();
+		double yattacker = game.getAttacker().getLocation().getY();
+		return Math.sqrt(Math.pow((xghost - xattacker),2) + Math.pow((yghost - yattacker),2));
+	}
+
 
 	//By: Maddy
 	public int ghostFour(Game game, Defender ghost){
